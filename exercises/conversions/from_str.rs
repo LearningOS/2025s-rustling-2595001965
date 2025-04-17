@@ -8,7 +8,6 @@
 //
 // Execute `rustlings hint from_str` or use the `hint` watch subcommand for a
 // hint.
-// I AM NOT DONE
 
 use std::num::ParseIntError;
 use std::str::FromStr;
@@ -32,7 +31,6 @@ enum ParsePersonError {
     ParseInt(ParseIntError),
 }
 
-// I AM NOT DONE
 
 // Steps:
 // 1. If the length of the provided string is 0, an error should be returned
@@ -53,6 +51,25 @@ enum ParsePersonError {
 impl FromStr for Person {
     type Err = ParsePersonError;
     fn from_str(s: &str) -> Result<Person, Self::Err> {
+        if s.is_empty() {
+            return Err(ParsePersonError::Empty);
+        }
+
+        let mut split = s.split(',');
+        let name = split.next().ok_or(ParsePersonError::BadLen)?;
+        let age = split.next().ok_or(ParsePersonError::BadLen)?;
+
+        if split.next().is_some() {
+            return Err(ParsePersonError::BadLen);
+        }
+
+        if name.is_empty() {
+            return Err(ParsePersonError::NoName);
+        }
+
+        let age = age.parse::<usize>().map_err(ParsePersonError::ParseInt)?;
+
+        Ok(Person { name: name.to_string(), age })
     }
 }
 
@@ -61,9 +78,40 @@ fn main() {
     println!("{:?}", p);
 }
 
+#[derive(Debug, PartialEq)]
+struct Number {
+    value: i32,
+}
+
+#[derive(Debug, PartialEq)]
+enum ParseError {
+    InvalidFormat,
+}
+
+impl FromStr for Number {
+    type Err = ParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let value = s.parse::<i32>().map_err(|_| ParseError::InvalidFormat)?;
+        Ok(Number { value })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_valid_number() {
+        let num = "42".parse::<Number>();
+        assert_eq!(num, Ok(Number { value: 42 }));
+    }
+
+    #[test]
+    fn test_invalid_number() {
+        let num = "not a number".parse::<Number>();
+        assert_eq!(num, Err(ParseError::InvalidFormat));
+    }
 
     #[test]
     fn empty_input() {

@@ -6,7 +6,6 @@
 //
 // Execute `rustlings hint as_ref_mut` or use the `hint` watch subcommand for a
 // hint.
-// I AM NOT DONE
 
 // Obtain the number of bytes (not characters) in the given argument.
 // TODO: Add the AsRef trait appropriately as a trait bound.
@@ -24,8 +23,13 @@ fn char_counter<T: AsRef<str>>(arg: T) -> usize {
 // TODO: Add the appropriate trait bound.
 use std::ops::Mul;
 
-fn num_sq<T: Mul<Output = T> + Copy>(arg: &mut T) {
-    *arg = *arg * *arg;
+fn num_sq<T, U>(arg: &mut T)
+where
+    T: AsMut<U>,
+    U: Mul<Output = U> + Copy,
+{
+    let value = arg.as_mut();
+    *value = *value * *value;
 }
 // TODO: Add the AsMut trait appropriately as a trait bound.
 
